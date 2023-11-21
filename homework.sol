@@ -52,5 +52,13 @@ function allocateTokens(address _beneficiary, uint256 _amount) external onlyAdmi
 
         emit TokensVested(_beneficiary, _amount);
     }
-    
+    function claimVestedTokens() external onlyAfterCliff {
+        uint256 availableTokens = getVestedTokens(msg.sender);
+        require(availableTokens > 0, "No vested tokens available");
+
+        vestedTokens[msg.sender] = 0;
+        require(token.transfer(msg.sender, availableTokens), "Token transfer failed");
+        emit TokensVested(msg.sender, availableTokens);
+    }
+
 }
