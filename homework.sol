@@ -42,6 +42,15 @@ contract TokenVestingPool {
         vestingDuration = _vestingDuration;
         cliffDuration = _cliffDuration;
     }
+function allocateTokens(address _beneficiary, uint256 _amount) external onlyAdmin {
+        require(_beneficiary != address(0), "Invalid beneficiary address");
+        require(_amount > 0, "Allocation amount must be greater than 0");
+        require(totalAllocatedTokens + _amount <= token.balanceOf(address(this)), "Not enough tokens in the pool");
 
+        totalAllocatedTokens += _amount;
+        vestedTokens[_beneficiary] += _amount;
+
+        emit TokensVested(_beneficiary, _amount);
+    }
     
 }
