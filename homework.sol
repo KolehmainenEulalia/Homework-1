@@ -60,5 +60,23 @@ function allocateTokens(address _beneficiary, uint256 _amount) external onlyAdmi
         require(token.transfer(msg.sender, availableTokens), "Token transfer failed");
         emit TokensVested(msg.sender, availableTokens);
     }
+function getVestedTokens(address _beneficiary) public view returns (uint256) {
+        if (block.timestamp < vestingStartTime) {
+            return 0;
+        } else if (block.timestamp >= vestingStartTime + vestingDuration) {
+            return vestedTokens[_beneficiary];
+        } else {
+            uint256 timeSinceStart = block.timestamp - vestingStartTime;
+            uint256 vestedPercentage = (timeSinceStart * 100) / vestingDuration;
+            return (vestedTokens[_beneficiary] * vestedPercentage) / 100;
+        }
+    }
 
+    function remainingBalance() external view returns (uint256) {
+        return token.balanceOf(address(this));
+    }
+
+    function getVestingDetails() external view returns (uint256, uint256, uint256, uint256) {
+        return (vestingStartTime, vestingDuration, cliffDuration, totalAllocatedTokens);
+    }
 }
